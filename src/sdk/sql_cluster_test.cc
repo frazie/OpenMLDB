@@ -411,7 +411,8 @@ TEST_F(SQLSDKQueryTest, GetTabletClient) {
         ASSERT_TRUE(request_row->Build());
         auto sql_cluster_router = std::dynamic_pointer_cast<SQLClusterRouter>(router);
         hybridse::sdk::Status sdk_status;
-        auto client = sql_cluster_router->GetTabletClient(db, sql, hybridse::vm::kRequestMode, request_row, sdk_status);
+        auto client = sql_cluster_router->GetTabletClient(db, sql, hybridse::vm::kRequestMode,
+                                                          request_row, &sdk_status);
         int pid = ::openmldb::base::hash64(pk) % 2;
         // only assert leader paritition
         for (int i = 0; i < 3; i++) {
@@ -508,7 +509,7 @@ TEST_F(SQLClusterTest, CreatePreAggrTable) {
                                  " ROWS_RANGE BETWEEN 20s PRECEDING AND CURRENT ROW);";
         router->ExecuteSQL(base_db, "use " + base_db + ";", &status);
         router->ExecuteSQL(base_db, deploy_sql, &status);
-        ASSERT_EQ(status.code, -1);
+        ASSERT_EQ(status.code, ::hybridse::common::StatusCode::kSyntaxError);
         ASSERT_EQ(status.msg, "long_windows option doesn't match window in sql");
     }
     {
@@ -518,7 +519,7 @@ TEST_F(SQLClusterTest, CreatePreAggrTable) {
                                  " ROWS_RANGE BETWEEN 20s PRECEDING AND CURRENT ROW);";
         router->ExecuteSQL(base_db, "use " + base_db + ";", &status);
         router->ExecuteSQL(base_db, deploy_sql, &status);
-        ASSERT_EQ(status.code, -1);
+        ASSERT_EQ(status.code, ::hybridse::common::StatusCode::kSyntaxError);
         ASSERT_EQ(status.msg, "long_windows option doesn't match window in sql");
     }
     ok = router->ExecuteDDL(base_db, "drop table " + base_table + ";", &status);
